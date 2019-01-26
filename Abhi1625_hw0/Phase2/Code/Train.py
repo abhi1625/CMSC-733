@@ -26,7 +26,7 @@ import glob
 import random
 from skimage import data, exposure, img_as_float
 import matplotlib.pyplot as plt
-from Network.Network import CIFAR10Model
+from Network.Network1 import CIFAR10Model
 from Misc.MiscUtils import *
 from Misc.DataUtils import *
 import numpy as np
@@ -72,11 +72,14 @@ def GenerateBatch(BasePath, DirNamesTrain, TrainLabels, ImageSize, MiniBatchSize
     	# Add any standardization or data augmentation here!
     	##########################################################
 
+
         I1 = np.float32(cv2.imread(RandImageName))
+        I1S = (I1 - np.mean(I1))/255
+        I1Combined = np.expand_dims(I1S, axis=0)
         Label = convertToOneHot(TrainLabels[RandIdx], 10)
 
         # Append All Images and Mask
-        I1Batch.append(I1)
+        I1Batch.append(I1S)
         LabelBatch.append(Label)
 
     return I1Batch, LabelBatch
@@ -136,7 +139,7 @@ def TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, 
     	###############################################
     	# Fill your optimizer of choice here!
     	###############################################
-        Optimizer = tf.train.AdamOptimizer(learning_rate = 1e-4).minimize(loss)
+        Optimizer = tf.train.AdamOptimizer(learning_rate = 1e-3).minimize(loss)
 
     # Tensorboard
     # Create a summary to monitor loss tensor
@@ -198,9 +201,9 @@ def main():
     Parser = argparse.ArgumentParser()
     Parser.add_argument('--BasePath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/CIFAR10', help='Base path of images, Default:/media/nitin/Research/Homing/SpectralCompression/CIFAR10')
     Parser.add_argument('--CheckPointPath', default='../Checkpoints/', help='Path to save Checkpoints, Default: ../Checkpoints/')
-    Parser.add_argument('--NumEpochs', type=int, default=50, help='Number of Epochs to Train for, Default:50')
+    Parser.add_argument('--NumEpochs', type=int, default=25, help='Number of Epochs to Train for, Default:50')
     Parser.add_argument('--DivTrain', type=int, default=1, help='Factor to reduce Train data by per epoch, Default:1')
-    Parser.add_argument('--MiniBatchSize', type=int, default=256, help='Size of the MiniBatch to use, Default:1')
+    Parser.add_argument('--MiniBatchSize', type=int, default=64, help='Size of the MiniBatch to use, Default:1')
     Parser.add_argument('--LoadCheckPoint', type=int, default=0, help='Load Model from latest Checkpoint from CheckPointsPath?, Default:0')
     Parser.add_argument('--LogsPath', default='Logs/', help='Path to save Logs for Tensorboard, Default=Logs/')
 
