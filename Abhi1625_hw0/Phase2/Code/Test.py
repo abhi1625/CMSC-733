@@ -24,7 +24,7 @@ import Misc.ImageUtils as iu
 import random
 from skimage import data, exposure, img_as_float
 import matplotlib.pyplot as plt
-from Network.Network1 import CIFAR10Model
+from Network.ResNext import CIFAR10Model
 from Misc.MiscUtils import *
 import numpy as np
 import time
@@ -183,7 +183,7 @@ def main():
 
     # Parse Command Line arguments
     Parser = argparse.ArgumentParser()
-    Parser.add_argument('--ModelPath', dest='ModelPath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/Checkpoints/24model.ckpt', help='Path to load latest model from, Default:ModelPath')
+    Parser.add_argument('--ModelPath', dest='ModelPath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/Checkpoints/9model.ckpt', help='Path to load latest model from, Default:ModelPath')
     Parser.add_argument('--BasePath', dest='BasePath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/CIFAR10/Test/', help='Path to load images from, Default:BasePath')
     Parser.add_argument('--LabelsPath', dest='LabelsPath', default='./TxtFiles/LabelsTest.txt', help='Path of labels file, Default:./TxtFiles/LabelsTest.txt')
     Args = Parser.parse_args()

@@ -60,11 +60,11 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
 
     #Define Filter parameters for the second convolution layer
     # filter_size2 = 5
-    # num_filters2 = 64
 
     #Define number of neurons in hidden layer
     # fc_size1 = 256
     # fc_size2 = 128
+    # num_filters2 = 64
 
 
     #Define number of class labels
@@ -77,12 +77,27 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     # x_image = tf.reshape(Img, [-1, ImageSize[0], ImageSize[1], ImageSize[2]])
 
     #Construct first convolution layer
-    net  = Img
-    net  = tf.layers.conv2d(inputs = net, name='layer_conv1', padding='same',filters = 64,
-                            kernel_size = 5, activation = tf.nn.relu)
-    layer_conv1 = net
-    net = tf.layers.conv2d(inputs = net, name = 'layer_conv2', padding= 'same', filters = 64, kernel_size = 5, activation = tf.nn.relu)
-    layer_conv2 = net
+    net = Img
+    net = tf.layers.conv2d(inputs = net, name='layer_conv1', padding='same',filters = 32, kernel_size = 5, activation = None)
+    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name ='layer_bn1')
+    net = tf.nn.relu(net, name = 'layer_Relu1')
+    # layer_conv1 = net
+    net = tf.layers.conv2d(inputs = net, name = 'layer_conv2', padding= 'same', filters = 32, kernel_size = 5, activation = None)
+    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name = 'layer_bn2')
+    net = tf.nn.relu(net, name = 'layer_Relu2')
+    # layer_conv2 = net
+    net  = tf.layers.max_pooling2d(inputs = net, pool_size = 2, strides = 2)
+
+
+    net = tf.layers.conv2d(inputs = net, name = 'layer_conv3', padding= 'same', filters = 64, kernel_size = 5, activation = None)
+    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name = 'layer_bn3')
+    net = tf.nn.relu(net, name = 'layer_Relu3')
+
+
+    net = tf.layers.conv2d(inputs = net, name = 'layer_conv4', padding= 'same', filters = 32, kernel_size = 5, activation = None)
+    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name = 'layer_bn4')
+    net = tf.nn.relu(net, name = 'layer_Relu4')
+
     net  = tf.layers.max_pooling2d(inputs = net, pool_size = 2, strides = 2)
 
     # layer_conv1, weights_conv1 = \
@@ -104,14 +119,16 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     net = tf.layers.flatten(net)
 
     #Define the Neural Network's fully connected layers:
+    #                      num_inputs=num_features,
     #Hidden layers and output layers
     # layer_fc1 = new_fc_layer(input=layer_flat,
-    #                      num_inputs=num_features,
     #                      num_outputs=fc_size1,
     #                      use_relu=True)
     net = tf.layers.dense(inputs = net, name ='layer_fc1', units = 128, activation = tf.nn.relu)
 
     net = tf.layers.dense(inputs = net, name ='layer_fc2',units=256, activation=tf.nn.relu)
+
+    net = tf.layers.dense(inputs = net, name ='layer_fc3',units=128, activation=tf.nn.relu)
 
     net = tf.layers.dense(inputs = net, name='layer_fc_out', units = num_classes, activation = None)
 

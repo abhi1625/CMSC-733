@@ -1,41 +1,40 @@
-from skimage import data, feature, color, filter, img_as_float
-from matplotlib import pyplot as plt
+import numpy as np
+import scipy.stats as st
+import skimage.transform
+import matplotlib.pyplot
+import cv2
 
+def gkern(kernlen, nsig):
+	"""Returns a 2D Gaussian kernel array."""
 
-original_image = img_as_float(data.chelsea())
-img = color.rgb2gray(original_image)
+	interval = (2*nsig+1.)/(kernlen)
+	x = np.linspace(-nsig-interval/2., nsig+interval/2., kernlen+1)
+	kern1d = np.diff(st.norm.cdf(x))
+	kernel_raw = np.sqrt(np.outer(kern1d, kern1d))
+	kernel = kernel_raw/kernel_raw.sum()
+	return kernel
 
-k = 1.6
+def main():
+	scales = 1
+	orient = 15
+	size = 9
+	scale=range(1,scales+1)
+	orients = np.linspace(0,360,orient)
 
-plt.subplot(2,3,1)
-plt.imshow(original_image)
-plt.title('Original Image')
+	for each in scale:
+		kernel=gkern(size,3)
+		border = cv2.borderInterpolate(0, 1, cv2.BORDER_CONSTANT)
+		sobelx64f = cv2.Sobel(kernel,cv2.CV_64F,1,0,ksize=5, borderType=border)
+		ker = list()
+		for i,eachOrient in enumerate(orients):
+			matplotlib.pyplot.figure(figsize=(16,2))
+			image=skimage.transform.rotate(sobelx64f,eachOrient)
+			matplotlib.pyplot.subplots_adjust(hspace=0.3,wspace=0.5)
+			matplotlib.pyplot.subplot(scales,orient,i+1)
+			matplotlib.pyplot.imshow(image,cmap='binary')
+			ker.append(image)
+			image=0
 
-for idx,sigma in enumerate([4.0,8.0,16.0,32.0]):
-	s1 = filter.gaussian_filter(img,k*sigma)
-	s2 = filter.gaussian_filter(img,sigma)
-
-	# multiply by sigma to get scale invariance
-	dog = s1 - s2
-	plt.subplot(2,3,idx+2)
-	print dog.min(),dog.max()
-	plt.imshow(dog,cmap='RdBu')
-	plt.title('DoG with sigma=' + str(sigma) + ', k=' + str(k))
-
-ax = plt.subplot(2,3,6)
-blobs_dog = [(x[0],x[1],x[2]) for x in feature.blob_dog(img, min_sigma=4, max_sigma=32,threshold=0.5,overlap=1.0)]
-# skimage has a bug in my version where only maxima were returned by the above
-blobs_dog += [(x[0],x[1],x[2]) for x in feature.blob_dog(-img, min_sigma=4, max_sigma=32,threshold=0.5,overlap=1.0)]
-
-#remove duplicates
-blobs_dog = set(blobs_dog)
-
-img_blobs = color.gray2rgb(img)
-for blob in blobs_dog:
-	y, x, r = blob
-	c = plt.Circle((x, y), r, color='red', linewidth=2, fill=False)
-	ax.add_patch(c)
-plt.imshow(img_blobs)
-plt.title('Detected DoG Maxima')
-
-plt.show()
+	matplotlib.pyplot.show()
+if __name__ == '__main__':
+	main()

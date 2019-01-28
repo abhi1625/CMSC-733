@@ -6,12 +6,12 @@ Geometric Computer Vision
 Homework 0: Alohomora: Phase 1 Starter Code
 
 
-Author(s): 
+Author(s):
 Nitin J. Sanket (nitin@terpmail.umd.edu)
 PhD Candidate in Computer Science,
 University of Maryland, College Park
 
-Chahat Deep Singh (chahat@terpmail.umd.edu) 
+Chahat Deep Singh (chahat@terpmail.umd.edu)
 PhD Student in Computer Science,
 University of Maryland, College Park
 """
@@ -64,7 +64,7 @@ def main():
 	Display texton map and save image as TextonMap_ImageName.png,
 	use command "cv2.imwrite('...)"
 	"""
-
+	
 
 	"""
 	Generate Texton Gradient (Tg)
@@ -76,7 +76,7 @@ def main():
 
 	"""
 	Generate Brightness Map
-	Perform brightness binning 
+	Perform brightness binning
 	"""
 
 
@@ -119,9 +119,6 @@ def main():
 	Display PbLite and save image as PbLite_ImageName.png
 	use command "cv2.imwrite(...)"
 	"""
-    
+
 if __name__ == '__main__':
     main()
- 
-
-
