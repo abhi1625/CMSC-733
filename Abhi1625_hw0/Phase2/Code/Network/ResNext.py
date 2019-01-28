@@ -97,7 +97,7 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
 
     #Define Filter parameters for the second convolution layer block
     filter_size = 3
-    num_filters = 16                                                                                                                    
+    num_filters = 16
     n = 1                  #number of residual blocks in each convolution layer blocks
 
 
@@ -119,11 +119,11 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     net = tf.layers.flatten(net)
 
     #Define the Neural Network's fully connected layers:
-    net = tf.layers.dense(inputs = net, name ='layer_fc1', units = 256, activation = tf.nn.relu)
+    net = tf.layers.dense(inputs = net, name ='layer_fc1', units = 128, activation = tf.nn.relu)
 
-    net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
+    # net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
 
-    net = tf.layers.dense(inputs = net, name ='layer_fc3',units=64, activation=tf.nn.relu)
+    # net = tf.layers.dense(inputs = net, name ='layer_fc3',units=64, activation=tf.nn.relu)
 
     net = tf.layers.dense(inputs = net, name='layer_fc_out', units = num_classes, activation = None)
 
