@@ -127,11 +127,11 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     # layer_fc1 = new_fc_layer(input=layer_flat,
     #                      num_outputs=fc_size1,
     #                      use_relu=True)
-    net = tf.layers.dense(inputs = net, name ='layer_fc1', units = 256, activation = tf.nn.relu)
+    # net = tf.layers.dense(inputs = net, name ='layer_fc1', units = 256, activation = tf.nn.relu)
+    #
+    # net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
 
-    net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
-
-    net = tf.layers.dense(inputs = net, name ='layer_fc3',units=64, activation=tf.nn.relu)
+    net = tf.layers.dense(inputs = net, name ='layer_fc3',units=128, activation=tf.nn.relu)
 
     net = tf.layers.dense(inputs = net, name='layer_fc_out', units = num_classes, activation = None)
 

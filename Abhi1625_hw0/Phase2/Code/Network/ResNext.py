@@ -86,7 +86,7 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     prSoftMax - softmax output of the network
     """
     #Define Filter parameters for the first convolution layer block
-    filter_size1 = 5
+    filter_size1 = 1
     num_filters1 = 16
     n1 = 1                  #number of residual blocks in each convolution layer blocks
 

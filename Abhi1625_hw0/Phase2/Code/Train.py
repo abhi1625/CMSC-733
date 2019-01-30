@@ -26,7 +26,7 @@ import glob
 import random
 from skimage import data, exposure, img_as_float
 import matplotlib.pyplot as plt
-from Network.ResNext import CIFAR10Model
+from Network.ResNet import CIFAR10Model
 from Misc.MiscUtils import *
 from Misc.DataUtils import *
 import numpy as np
@@ -38,10 +38,27 @@ import string
 from termcolor import colored, cprint
 import math as m
 from tqdm import tqdm
+import random
+from scipy import ndarray
+import skimage as sk
+from skimage import transform
+from skimage import util
 
 # Don't generate pyc codes
 sys.dont_write_bytecode = True
 
+def random_rotation(image_array):
+    # pick a random degree of rotation between 25% on the left and 25% on the right
+    random_degree = random.uniform(-25, 25)
+    return sk.transform.rotate(image_array, random_degree)
+
+def random_noise(image_array):
+    # add random noise to the image
+    return sk.util.random_noise(image_array)
+
+def horizontal_flip(image_array):
+    # horizontal flip doesn't need skimage, it's easy as flipping the image array of pixels !
+    return image_array[:, ::-1]
 
 def GenerateBatch(BasePath, DirNamesTrain, TrainLabels, ImageSize, MiniBatchSize):
     """
@@ -149,7 +166,7 @@ def TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, 
     MergedSummaryOP = tf.summary.merge_all()
 
     # Setup Saver
-    Saver = tf.train.Saver()
+    Saver = tf.train.Saver(max_to_keep = NumEpochs)
 
     with tf.Session() as sess:
         if LatestFile is not None:
@@ -176,7 +193,7 @@ def TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, 
                 if PerEpochCounter % SaveCheckPoint == 0:
                     # Save the Model learnt in this epoch
                     SaveName =  CheckPointPath + str(Epochs) + 'a' + str(PerEpochCounter) + 'model.ckpt'
-                    Saver.save(sess,  save_path=SaveName)
+                    # Saver.save(sess,  save_path=SaveName)
                     print('\n' + SaveName + ' Model Saved...')
 
                 # Tensorboard
@@ -201,7 +218,7 @@ def main():
     Parser = argparse.ArgumentParser()
     Parser.add_argument('--BasePath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/CIFAR10', help='Base path of images, Default:/media/nitin/Research/Homing/SpectralCompression/CIFAR10')
     Parser.add_argument('--CheckPointPath', default='../Checkpoints/', help='Path to save Checkpoints, Default: ../Checkpoints/')
-    Parser.add_argument('--NumEpochs', type=int, default=30, help='Number of Epochs to Train for, Default:50')
+    Parser.add_argument('--NumEpochs', type=int, default=10, help='Number of Epochs to Train for, Default:50')
     Parser.add_argument('--DivTrain', type=int, default=1, help='Factor to reduce Train data by per epoch, Default:1')
     Parser.add_argument('--MiniBatchSize', type=int, default=32, help='Size of the MiniBatch to use, Default:1')
     Parser.add_argument('--LoadCheckPoint', type=int, default=0, help='Load Model from latest Checkpoint from CheckPointsPath?, Default:0')
