@@ -21,7 +21,7 @@ def name_block(s,b):
     """
     s is the integer for the number of each set of residual blocks
     """
-    s = 'set'+str(b)+'block'+str(s)
+    s = 'block'+str(b)+'layer'+str(s)
     return s
 
 def res_block(Img, num_filters, kernel_size,s,b, downsampling = True):
@@ -33,18 +33,21 @@ def res_block(Img, num_filters, kernel_size,s,b, downsampling = True):
     b is the integer number of the set of blocks with same parameters
     """
     name = name_block(s=s,b=b)
-    im_store = tf.layers.conv2d(inputs = Img, name=name+'layer_res_conv_0', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
-    im_store = tf.layers.batch_normalization(inputs = im_store,axis = -1, center = True, scale = True, name = name+'layer_bn0')
+    net = tf.layers.conv2d(inputs = Img, name=name+'_conv_0', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
+    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name = name+'_bn0')
+
+    im_store = tf.layers.conv2d(inputs = net, name=name+'_conv', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
+    im_store = tf.layers.batch_normalization(inputs = im_store,axis = -1, center = True, scale = True, name = name+'_bn')
     I_store = im_store
 
     #Define 1st layer of convolution
-    net = tf.layers.conv2d(inputs = Img, name=name +'layer_res_conv_1', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
-    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name =name +'layer_bn1')
+    net = tf.layers.conv2d(inputs = Img, name=name +'_conv_1', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
+    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name =name +'_bn1')
     net = tf.nn.relu(net, name = name +'layer_Relu1')
 
     #Define 2nd Layer of the convolution
-    net = tf.layers.conv2d(inputs = net, name=name+'layer_res_conv_2', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
-    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name =name +'layer_bn2')
+    net = tf.layers.conv2d(inputs = net, name=name+'_conv_2', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
+    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name =name +'_bn2')
 
     if downsampling:
         net  = tf.layers.max_pooling2d(inputs = net, pool_size = 2, strides = 2)
@@ -53,7 +56,7 @@ def res_block(Img, num_filters, kernel_size,s,b, downsampling = True):
         print('max_pool is on')
     out = tf.math.add(net, I_store)
 
-    net = tf.nn.relu(out, name = name +'layer_Relu2')
+    net = tf.nn.relu(out, name = name +'_Relu2')
 
     return net
 
@@ -129,7 +132,7 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     #                      use_relu=True)
     # net = tf.layers.dense(inputs = net, name ='layer_fc1', units = 256, activation = tf.nn.relu)
     #
-    # net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
+    net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
 
     net = tf.layers.dense(inputs = net, name ='layer_fc3',units=128, activation=tf.nn.relu)
 

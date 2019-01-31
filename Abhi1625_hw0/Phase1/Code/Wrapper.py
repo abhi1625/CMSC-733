@@ -7,12 +7,8 @@ Homework 0: Alohomora: Phase 1 Starter Code
 
 
 Author(s):
-Nitin J. Sanket (nitin@terpmail.umd.edu)
-PhD Candidate in Computer Science,
-University of Maryland, College Park
-
-Chahat Deep Singh (chahat@terpmail.umd.edu)
-PhD Student in Computer Science,
+Abhinav Modi (abhi1625@umd.edu)
+Graduate Student pursuing Masters in Robotics,
 University of Maryland, College Park
 """
 
@@ -25,6 +21,19 @@ import scipy
 import scipy.stats as st
 import skimage.transform
 import sklearn.cluster
+import argparse
+
+
+
+def gauss2D(kernlen, nsig):
+    """Returns a 2D Gaussian kernel array."""
+#     nsig = scales*scales
+    interval = (2*nsig+1.)/(kernlen)
+    x = np.linspace(-nsig-interval/2., nsig+interval/2., kernlen+1)
+    kern1d = np.diff(st.norm.cdf(x))
+    kernel_raw = np.sqrt(np.outer(kern1d, kern1d))
+    kernel = kernel_raw/kernel_raw.sum()
+    return kernel
 
 def gaussian1d(sigma, mean, x, ord):
     x = np.array(x)
@@ -72,13 +81,9 @@ def makefilter(scale, phasex, phasey, pts, sup):
     return image
 
 
-
+#Define LM filters
 def makeLMfilters(sup, scales, norient, nrotinv):
-#     sup     = 49
     scalex  = np.sqrt(2) * np.arange(1,scales+1)
-#     norient = 6
-#     nrotinv = 12
-
     nbar  = len(scalex)*norient
     nedge = len(scalex)*norient
     nf    = nbar+nedge+nrotinv
@@ -122,46 +127,26 @@ def makeLMfilters(sup, scales, norient, nrotinv):
         count = count + 1
 
     return F
-	#
-    # for i in range(len(scales)):
-    #     F[:,:,count]   = gaussian2d(sup, scales[i])
-    #     count = count + 1
-	#
-    # for i in range(len(scales)):
-    #     F[:,:,count] = log2d(sup, scales[i])
-    #     count = count + 1
-	#
-    # for i in range(len(scales)):
-    #     F[:,:,count] = log2d(sup, 3*scales[i])
-    #     count = count + 1
-	#
-    # return F
 
-
-def gauss2D(kernlen, nsig):
-    """Returns a 2D Gaussian kernel array."""
-#     nsig = scales*scales
-    interval = (2*nsig+1.)/(kernlen)
-    x = np.linspace(-nsig-interval/2., nsig+interval/2., kernlen+1)
-    kern1d = np.diff(st.norm.cdf(x))
-    kernel_raw = np.sqrt(np.outer(kern1d, kern1d))
-    kernel = kernel_raw/kernel_raw.sum()
-    return kernel
+#Define DOG Filters
 def makeDOGFilters(scales,orient,size):
-    orients=np.linspace(0,360,orient)
     kernels=[]
-    kernel=gauss2D(size,scales)
-    border = cv2.borderInterpolate(0, 1, cv2.BORDER_CONSTANT)
-    sobelx64f = cv2.Sobel(kernel,cv2.CV_64F,1,0,ksize=3, borderType=border)
-    for i,eachOrient in enumerate(orients):
-        #plt.figure(figsize=(16,16))
-        image=skimage.transform.rotate(sobelx64f,eachOrient)
-        #plt.subplots_adjust(hspace=0.1,wspace=1.5)
-        #plt.subplot(scales,orient,i+1)
-        #plt.imshow(image,cmap='binary')
-        kernels.append(image)
-        image=0
+    for scale in scales:
+        orients=np.linspace(0,360,orient)
+        kernel=gauss2D(size,scale)
+        border = cv2.borderInterpolate(0, 1, cv2.BORDER_CONSTANT)
+        sobelx64f = cv2.Sobel(kernel,cv2.CV_64F,1,0,ksize=3, borderType=border)
+        for i,eachOrient in enumerate(orients):
+            #plt.figure(figsize=(16,16))
+            image=skimage.transform.rotate(sobelx64f,eachOrient)
+            #plt.subplots_adjust(hspace=0.1,wspace=1.5)
+            #plt.subplot(scales,orient,i+1)
+            #plt.imshow(image,cmap='binary')
+            kernels.append(image)
+            image=0
     return kernels
+
+
 def gabor_fn(sigma, theta, Lambda, psi, gamma):
     """
     sigma is the variance
@@ -193,15 +178,18 @@ def gabor_fn(sigma, theta, Lambda, psi, gamma):
     return gb
 #4, 0.25, 1, 1.0, 1
 
+#Define Gabor Filters
 def makeGaborFilters(sigma, theta, Lambda, psi, gamma,num_filters):
-    gb = gabor_fn(sigma, theta, Lambda, psi, gamma)
     g = list()
-    ang = np.linspace(0,360,num_filters)
-    for i in range(num_filters):
-        image = skimage.transform.rotate(gb,ang[i])
-        g.append(image)
+    for j in sigma:
+        gb = gabor_fn(j, theta, Lambda, psi, gamma)
+        ang = np.linspace(0,360,num_filters)
+        for i in range(num_filters):
+            image = skimage.transform.rotate(gb,ang[i])
+            g.append(image)
     return g
 
+#Define Texton Map by using DOG filters
 def texton_DOG(Img, filter_bank):
     tex_map = np.array(Img)
 #     _,_,num_filters = filter_bank.shape
@@ -211,6 +199,8 @@ def texton_DOG(Img, filter_bank):
         out = cv2.filter2D(Img,-1,filter_bank[i])
         tex_map = np.dstack((tex_map, out))
     return tex_map
+
+#Define Texton Map using LM filters
 def texton_LM(Img, filter_bank ):
     tex_map = np.array(Img)
     _,_,num_filters = filter_bank.shape
@@ -221,21 +211,20 @@ def texton_LM(Img, filter_bank ):
         tex_map = np.dstack((tex_map, out))
     return tex_map
 
-def clustering(img,filter_bank1,filter_bank2,filter_bank3, num_clusters):
-    p,q = img.shape
+def Texton(img,filter_bank1,filter_bank2,filter_bank3, num_clusters):
+    p,q,_ = img.shape
     tex_map_DOG = texton_DOG(img, filter_bank2)
     tex_map_LM = texton_LM(img, filter_bank1)
     tex_map_Gabor = texton_DOG(img, filter_bank3)
-    tex_map = np.dstack((tex_map_DOG,tex_map_LM,tex_map_Gabor))
+    tex_map = np.dstack((tex_map_DOG[:,:,1:],tex_map_LM[:,:,1:],tex_map_Gabor[:,:,1:]))
     m,n,r = tex_map.shape
     inp = np.reshape(tex_map,((p*q),r))
-    kmeans = sklearn.cluster.KMeans(n_clusters = 64, random_state = 2)
+    kmeans = sklearn.cluster.KMeans(n_clusters = num_clusters, random_state = 2)
     kmeans.fit(inp)
     labels = kmeans.predict(inp)
     l = np.reshape(labels,(m,n))
     plt.imshow(l)
     return l
-
 
 def brightness(Img, num_clusters):
     p,q = Img.shape
@@ -256,12 +245,15 @@ def color(Img, num_clusters):
     l = np.reshape(labels,(p,q))
     plt.imshow(l)
     return l
+
 def gradient(Img, bins, filter_bank):
     gradVar = Img
     for N in range(len(filter_bank)/2):
         g = chi_sqr_gradient(Img, bins, filter_bank[2*N],filter_bank[2*N+1])
         gradVar = np.dstack((gradVar,g))
-    return gradVar
+    mean = np.mean(gradVar,axis =2)
+    return mean
+#Define half disk filters for gradient calculation
 def half_disk(radius):
     a=np.ones((2*radius+1,2*radius+1))
     y,x = np.ogrid[-radius:radius+1,-radius:radius+1]
@@ -275,7 +267,7 @@ def half_disk(radius):
     b[mask3] = 0
 
     return a, b
-scales = [5,7,9]
+
 def disk_masks(scales, orients):
     flt = list()
     orients = np.linspace(0,360,orients)
@@ -294,9 +286,9 @@ def disk_masks(scales, orients):
             z2 = z2.astype(np.int)
             flt.append(z1)
             flt.append(z2)
-    for each in flt:
-        plt.imshow(each,cmap='binary')
-        plt.show()
+    # for each in flt:
+    #     plt.imshow(each,cmap='binary')
+    #     plt.show()
 
     return flt
 def chi_sqr_gradient(Img, bins,filter1,filter2):
@@ -312,135 +304,172 @@ def chi_sqr_gradient(Img, bins,filter1,filter2):
         h = cv2.filter2D(img,-1,filter2)
         chi_sqr_dist = chi_sqr_dist + ((g-h)**2 /(g+h))
     return chi_sqr_dist/2
+def plot_LM(filters):
+    _,_,r = filters.shape
+    for i in range(r):
+        plt.subplot(4,12,i+1)
+        plt.axis('off')
+        plt.imshow(filters[:,:,i], cmap = 'binary')
+    plt.savefig('LM.png')
+    plt.close()
+        # x = filters[:,:,i]
+        # border = cv2.copyMakeBorder(x,10,10,10,10,cv2.BORDER_CONSTANT,value = [255,255,255])
+    #     # fig = (border,) + fig
+    # return cv2.hconcat(fig)
+def plot_Gab(filters):
+    r = len(filters)
+    for i in range(r):
+        plt.subplot(r/5,5,i+1)
+        plt.axis('off')
+        plt.imshow(filters[i], cmap = 'gray')
+    plt.savefig('Gabor.png')
+    plt.close()
 
+def plot_DoG(filters):
+    r = len(filters)
+    for i in range(r):
+        plt.subplot(r/5,5,i+1)
+        plt.axis('off')
+        plt.imshow(filters[i],cmap='gray')
+    plt.savefig('DoG.png')
+    plt.close()
 
 def main():
-	img = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/Images/1.jpg',0)  #0 for reading img in grayscale
-	img_col = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/Images/1.jpg')  #0 for reading img in grayscale
-
-	filter_bank1 = makeLMfilters(sup = 49, scales = 3, norient = 6, nrotinv = 12)
-	filter_bank2 = makeDOGFilters(scales = 16,orient = 15, size = 49 )
-	filter_bank3 = makeGaborFilters(sigma=4, theta=0.25, Lambda=1, psi=1, gamma=1,num_filters=15)
+    Parser = argparse.ArgumentParser()
+    Parser.add_argument('--Maps_flag', default=False)
+    Args = Parser.parse_args()
+    Maps_flag = Args.Maps_flag
 
 
-
-	T = clustering(img,filter_bank1,filter_bank2,filter_bank3,num_clusters=64)
-	B = brightness(Img = img, num_clusters=16)
-	C = color(img_col, 16)
-	c = disk_masks([7], 4)
-
-
-	Tg = gradient(T, 64, c)
-
-	Bg = gradient(B, 16, c)
-
-	Cg = gradient(C, 16, c)
+    for i in range(10):
+        path = '/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/Images/'+str(i+1)+'.jpg'
+        print(path)
+        img = cv2.imread(path,0)  #0 for reading img in grayscale
+        img_col = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/Images/'+str(i+1)+'.jpg')
 
 
-
-	temp = (Tg+Bg+Cg)/3
-	mean = np.mean(temp,axis =2)
-	cannyBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/CannyBaseline/1.png',0)
-	sobelBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/SobelBaseline/1.png',0)
-	final = np.multiply(mean, (0.3*cannyBaseline+0.7*sobelBaseline))
-
-	plt.imshow(final,cmap='binary')
-	plt.show()
-	"""
-	Generate Difference of Gaussian Filter Bank: (DoG)
-	Display all the filters in this filter bank and save image as DoG.png,
-	use command "cv2.imwrite(...)"
-	"""
-
-
-	"""
-	Generate Leung-Malik Filter Bank: (LM)
-	Display all the filters in this filter bank and save image as LM.png,
-	use command "cv2.imwrite(...)"
-	"""
+        """
+        Generate Leung-Malik Filter Bank: (LM)
+        Display all the filters in this filter bank and save image as LM.png,
+        use command "cv2.imwrite(...)"
+        """
+        filter_bank1 = makeLMfilters(sup = 49, scales = 3, norient = 6, nrotinv = 12)
+        plot_LM(filter_bank1)
+        # cv2.imwrite('LM.png',flt1)
+        """
+        Generate Difference of Gaussian Filter Bank: (DoG)
+        Display all the filters in this filter bank and save image as DoG.png,
+        use command "cv2.imwrite(...)"
+        """
+        filter_bank2 = makeDOGFilters(scales = [16,25,30],orient = 15, size = 49 )
+        plot_DoG(filter_bank2)
+        # cv2.imwrite('DoG.png',flt2)
 
 
-	"""
-	Generate Gabor Filter Bank: (Gabor)
-	Display all the filters in this filter bank and save image as Gabor.png,
-	use command "cv2.imwrite(...)"
-	"""
+        """
+        Generate Gabor Filter Bank: (Gabor)
+        Display all the filters in this filter bank and save image as Gabor.png,
+        use command "cv2.imwrite(...)"
+        """
+        filter_bank3 = makeGaborFilters(sigma=[9,16,25], theta=0.25, Lambda=1, psi=1, gamma=1,num_filters=15)
+        plot_Gab(filter_bank3)
+
+        if(Maps_flag):
+            """
+            Generate texture ID's using K-means clustering
+            Display texton map and save image as TextonMap_ImageName.png,
+            use command "cv2.imwrite('...)"
+            """
+            T = Texton(img_col,filter_bank1,filter_bank2,filter_bank3,num_clusters=64)
+            np.save('Maps/T'+str(i+1),T)
+            plt.imsave(str(i+1)+"/TextonMap_"+str(i+1)+".png", T)
+
+            """
+            Generate Brightness Map
+            Perform brightness binning
+            """
+            B = brightness(Img = img, num_clusters=16)
+            np.save('Maps/B'+str(i+1),B)
+            plt.imsave(str(i+1)+"/BrightnessMap_"+str(i+1)+".png", B)
+
+            """
+            Generate Color Map
+            Perform color binning or clustering
+            """
+            C = color(img_col, 16)
+            np.save('Maps/C'+str(i+1),C)
+            plt.imsave(str(i+1)+"/ColorMap_"+str(i+1)+".png", C)
+
+        else:
+            T = np.load('Maps/T'+str(i+1)+'.npy')
+            B = np.load('Maps/B'+str(i+1)+'.npy')
+            C = np.load('Maps/C'+str(i+1)+'.npy')
+
+        """
+        Generate Half-disk masks
+        Display all the Half-disk masks and save image as HDMasks.png,
+        use command "cv2.imwrite(...)"
+        """
+        c = disk_masks([5,7], 8)
+
+        """
+        Generate Texton Gradient (Tg)
+        Perform Chi-square calculation on Texton Map
+        Display Tg and save image as Tg_ImageName.png,
+        use command "cv2.imwrite(...)"
+        """
+        Tg = gradient(T, 64, c)
+        plt.imsave(str(i+1)+"/Tg_"+str(i+1)+".png", Tg)
+
+        # plt.imshow(Tg)
+        # plt.show()
+        """
+        Generate Brightness Gradient (Bg)
+        Perform Chi-square calculation on Brightness Map
+        Display Bg and save image as Bg_ImageName.png,
+        use command "cv2.imwrite(...)"
+        """
+        Bg = gradient(B, 16, c)
+        plt.imsave(str(i+1)+"/Bg_"+str(i+1)+".png", Bg)
+
+        """
+        Generate Color Gradient (Cg)
+        Perform Chi-square calculation on Color Map
+        Display Cg and save image as Cg_ImageName.png,
+        use command "cv2.imwrite(...)"
+        """
+        Cg = gradient(C, 16, c)
+        plt.imsave(str(i+1)+"/Cg_"+str(i+1)+".png", Cg)
 
 
-	"""
-	Generate Half-disk masks
-	Display all the Half-disk masks and save image as HDMasks.png,
-	use command "cv2.imwrite(...)"
-	"""
+        temp = (Tg+Bg+Cg)/3
+        cv2.imshow('temp',temp)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        """
+        Read Sobel Baseline
+        use command "cv2.imread(...)"
+        """
+        sobelBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/SobelBaseline/'+str(i+1)+'.png',0)
+
+        """
+        Read Canny Baseline
+        use command "cv2.imread(...)"
+        """
+        cannyBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/CannyBaseline/'+str(i+1)+'.png',0)
+
+        """
+        Combine responses to get pb-lite output
+        Display PbLite and save image as PbLite_ImageName.png
+        use command "cv2.imwrite(...)"
+        """
+        pblite_out = np.multiply(temp, (0.45*cannyBaseline+0.55*sobelBaseline))
+
+        cv2.imwrite(str(i+1)+"/PbLite_" + str(i+1) + ".png", pblite_out)
 
 
-
-	"""
-	Generate Texton Map
-	Filter image using oriented gaussian filter bank
-	"""
-
-
-	"""
-	Generate texture ID's using K-means clustering
-	Display texton map and save image as TextonMap_ImageName.png,
-	use command "cv2.imwrite('...)"
-	"""
-
-
-	"""
-	Generate Texton Gradient (Tg)
-	Perform Chi-square calculation on Texton Map
-	Display Tg and save image as Tg_ImageName.png,
-	use command "cv2.imwrite(...)"
-	"""
-
-
-	"""
-	Generate Brightness Map
-	Perform brightness binning
-	"""
-
-
-	"""
-	Generate Brightness Gradient (Bg)
-	Perform Chi-square calculation on Brightness Map
-	Display Bg and save image as Bg_ImageName.png,
-	use command "cv2.imwrite(...)"
-	"""
-
-
-	"""
-	Generate Color Map
-	Perform color binning or clustering
-	"""
-
-
-	"""
-	Generate Color Gradient (Cg)
-	Perform Chi-square calculation on Color Map
-	Display Cg and save image as Cg_ImageName.png,
-	use command "cv2.imwrite(...)"
-	"""
-
-
-	"""
-	Read Sobel Baseline
-	use command "cv2.imread(...)"
-	"""
-
-
-	"""
-	Read Canny Baseline
-	use command "cv2.imread(...)"
-	"""
-
-
-	"""
-	Combine responses to get pb-lite output
-	Display PbLite and save image as PbLite_ImageName.png
-	use command "cv2.imwrite(...)"
-	"""
+    # plt.imshow(pblite_out,cmap='binary')
+    # plt.show()
 
 if __name__ == '__main__':
     main()

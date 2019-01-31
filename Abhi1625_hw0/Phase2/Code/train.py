@@ -1,0 +1,621 @@
+#!/usr/bin/env python
+
+"""
+CMSC733 Spring 2019: Classical and Deep Learning Approaches for
+Geometric Computer Vision
+Homework 0: Alohomora: Phase 2 Starter Code
+
+
+Author(s):
+Nitin J. Sanket (nitinsan@terpmail.umd.edu)
+PhD Candidate in Computer Science,
+University of Maryland, College Park
+"""
+
+# Dependencies:
+# opencv, do (pip install opencv-python)
+# skimage, do (apt install python-skimage)
+# termcolor, do (pip install termcolor)
+
+import tensorflow as tf
+import cv2
+import sys
+import os
+import glob
+import random
+from skimage import data, exposure, img_as_float
+import matplotlib.pyplot as plt
+from Network.Network import CIFAR10Model
+from Misc.MiscUtils import *
+from Misc.DataUtils import *
+import numpy as np
+import time
+import argparse
+import shutil
+from StringIO import StringIO
+import string
+from termcolor import colored, cprint
+import math as m
+from tqdm import tqdm
+from sklearn.metrics import confusion_matrix
+from tqdm import tqdm
+import random
+from scipy import ndarray
+import skimage as sk
+from skimage import transform
+from skimage import util
+# Don't generate pyc codes
+sys.dont_write_bytecode = True
+
+
+def random_rotation(image_array):
+    # pick a random degree of rotation between 25% on the left and 25% on the right
+    random_degree = random.uniform(-25, 25)
+    return sk.transform.rotate(image_array, random_degree)
+
+def random_noise(image_array):
+    # add random noise to the image
+    return sk.util.random_noise(image_array)
+
+def horizontal_flip(image_array):
+    # horizontal flip doesn't need skimage, it's easy as flipping the image array of pixels !
+    return image_array[:, ::-1]
+
+def GenerateBatch(BasePath, DirNamesTrain, TrainLabels, ImageSize, MiniBatchSize):
+    """
+    Inputs:
+    BasePath - Path to CIFAR10 folder without "/" at the end
+    DirNamesTrain - Variable with Subfolder paths to train files
+    NOTE that Train can be replaced by Val/Test for generating batch corresponding to validation (held-out testing in this case)/testing
+    TrainLabels - Labels corresponding to Train
+    NOTE that TrainLabels can be replaced by Val/TestLabels for generating batch corresponding to validation (held-out testing in this case)/testing
+    ImageSize - Size of the Image
+    MiniBatchSize is the size of the MiniBatch
+    Outputs:
+    I1Batch - Batch of images
+    LabelBatch - Batch of one-hot encoded labels
+    """
+    I1Batch = []
+    LabelBatch = []
+
+    ImageNum = 0
+    while ImageNum < MiniBatchSize:
+        # Generate random image
+        RandIdx = random.randint(0, len(DirNamesTrain)-1)
+
+        RandImageName = BasePath + os.sep + DirNamesTrain[RandIdx] + '.png'
+        ImageNum += 1
+
+        I1 = np.float32(cv2.imread(RandImageName))
+        I1 = (I1-np.mean(I1))/255
+        I1=random_rotation(I1)
+        I1=random_noise(I1)
+        I1=horizontal_flip(I1)
+        Label = convertToOneHot(TrainLabels[RandIdx], 10)
+
+        # Append All Images and Mask
+        I1Batch.append(I1)
+        LabelBatch.append(Label)
+
+    return I1Batch, LabelBatch
+
+#######################################################################################################################
+
+km = KMeans(n_clusters = 2, random_state=90)
+km.fit(data, axis=3)
+
+Prateek Arora
+Monday, January 28th at 1:53 am
+inp = np.reshape(tex_map,((p*q),r))
+    kmeans = sklearn.cluster.KMeans(n_clusters = 64, random_state = 2)
+    kmeans.fit(inp)
+    labels = kmeans.predict(inp)
+    l = np.reshape(labels,(m,n))
+    plt.imshow(l)
+
+Abhinav Modi
+Monday, January 28th at 3:09 pm
+def half_disk(radius):
+    two_r_plus_1 = radius*2 + 1
+    half_disk = np.ones([two_r_plus_1, two_r_plus_1])
+
+    rs = np.power(radius,2)
+    for i in range(radius):
+        iss = np.power((i - radius - 1),2)
+
+        for j in range(two_r_plus_1):
+            if (iss+ np.power((j - radius - 1),2) < rs):
+                half_disk[i, j] = 0
+    return half_disk
+
+
+half_disk = half_disk(20)
+plt.imshow(half_disk, cmap = 'binary')
+plt.show()
+
+Prateek Arora
+Monday, January 28th at 4:21 pm
+import skimage.transform
+def half_disk(radius):
+    a=np.ones((2*radius+1,2*radius+1))
+    y,x = np.ogrid[-radius:radius+1,-radius:radius+1]
+    mask2 = x*x + y*y <= radius**2
+    a[mask2] = 0
+    b=np.ones((2*radius+1,2*radius+1))
+    y,x = np.ogrid[-radius:radius+1,-radius:radius+1]
+    p = x>-1
+    q = y>-radius-1
+    mask3 = p*q
+    b[mask3] = 0
+
+    return a, b
+scales = [5,7,9]
+def disk_masks(scales, orients):
+    flt = list()
+    orients = np.linspace(0,360,orients)
+    for i in scales:
+        radius = i
+        g = list()
+        a,b = half_disk(radius = radius)
+        for i,eachOrient in enumerate(orients):
+#             plt.figure(figsize=(16,2))
+#             image=skimage.transform.rotate(,eachOrient)
+            b = skimage.transform.rotate(b,eachOrient)
+            np.logical_or(a,b)
+            g.append(b)
+            plt.imshow(b,cmap = 'binary')
+        flt.append(g)
+    return flt
+
+Abhinav Modi
+Monday, January 28th at 6:16 pm
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.import numpy as np
+import scipy.stats as st
+import skimage.transform
+import matplotlib.pyplot as plt
+import cv2
+import scipy
+import sklearn
+def single_half_disk(radius):
+    two_r_plus_1 = radius*2 + 1
+    half_disk = np.ones([two_r_plus_1, two_r_plus_1])
+
+    rs = np.power(radius,2)
+    for i in range(radius):
+        iss = np.power((i - radius),2)
+
+        for j in range(two_r_plus_1):
+            if (iss+ np.power((j - radius),2) < rs):
+                half_disk[i, j] = 0
+    return half_disk
+
+def half_disk_bank(radius_list,orient):
+    # scale=range(1,scales+1)
+    # print(scale)
+    orients=np.linspace(0,360,orient)
+    # kernels=[[0 for x in range(1,scales)]for y in range(1,orient)]
+
+    half_disk_bank_op = list()
+    for each_rad in radius_list:
+#         black_ones = np.ones([each_rad*2+1, each_rad*2+1])
+        one_half_disk=single_half_disk(each_rad)
+        for eachOrient in orients:
+            image=skimage.transform.rotate(one_half_disk,eachOrient,cval=1)
+#             np.logical_and(black_ones,image)
+            half_disk_bank_op.append(image)
+    return half_disk_bank_op
+
+..
+
+.
+
+radius_list = [7,20,35]
+orient = 4
+half_disk = half_disk_bank(radius_list,orient)
+for each in half_disk:
+    plt.imshow(each,cmap='binary')
+    plt.show()
+
+Prateek Arora
+Monday, January 28th at 9:24 pm
+LMFilters.ipynb
+Monday, January 28th at 10:31 pm
+temp = (Tg+Bg+Cg)/3
+mean = np.mean(temp,axis =2)
+cannyBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/CannyBaseline/1.png',0)
+sobelBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/SobelBaseline/1.png',0)
+final = np.multiply(mean, (0.6*cannyBaseline+0.4*sobelBaseline))
+
+plt.imshow(final,cmap='binary')
+
+Abhinav Modi
+Tuesday, January 29th at 1:50 am
+https://github.com/YixuanLi/densenet-tensorflow/blob/master/cifar10-densenet.py
+Yesterday at 10:20 PM
+.
+
+.
+
+.
+
+def ConfusionMatrix(LabelsTrue, LabelsPred, num_classes):
+    """
+    LabelsTrue - True labels
+    LabelsPred - Predicted labels
+    """
+    print('length = '+ str(len(LabelsPred)))
+    # Get the confusion matrix using sklearn.
+    cm = confusion_matrix(y_true=LabelsTrue,  # True class for test-set.
+                          y_pred=LabelsPred)  # Predicted class.
+
+    # Print the confusion matrix as text.
+    for i in range(10):
+        print(str(cm[i, :]) + ' ({0})'.format(i))
+
+    # Print the class-numbers for easy reference.
+    class_numbers = [" ({0})".format(i) for i in range(10)]
+    print("".join(class_numbers))
+
+    print('Accuracy: ' + str(Accuracy(LabelsPred, LabelsTrue)), '%')
+
+    plt.matshow(cm)
+
+    # Make various adjustments to the plot.
+    plt.colorbar()
+    tick_marks = np.arange(num_classes)
+    plt.xticks(tick_marks, range(num_classes))
+    plt.yticks(tick_marks, range(num_classes))
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.show()
+
+
+def augment_brightness_camera_images(image):
+    image1 = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
+    random_bright = .15+np.random.uniform()
+#     random_bright = np.random.uniform()
+    if(random_bright>1.0):
+        random_bright = 1
+
+    #print(random_bright)
+    image1[:,:,2] = image1[:,:,2]*random_bright
+    image1 = cv2.cvtColor(image1,cv2.COLOR_HSV2RGB)
+    return image1
+
+def transform_image(img,ang_range,shear_range,trans_range,brightness=0):
+    '''
+    This function transforms images to generate new images.
+    The function takes in following arguments,
+    1- Image
+    2- ang_range: Range of angles for rotation
+    3- shear_range: Range of values to apply affine transform to
+    4- trans_range: Range of values to apply translations over.
+
+    A Random uniform distribution is used to generate different parameters for transformation
+
+    '''
+    # Rotation
+
+    ang_rot = np.random.uniform(ang_range)-ang_range/2
+    rows,cols,ch = img.shape
+    Rot_M = cv2.getRotationMatrix2D((cols/2,rows/2),ang_rot,1)
+
+    # Translation
+    tr_x = trans_range*np.random.uniform()-trans_range/2
+    tr_y = trans_range*np.random.uniform()-trans_range/2
+    Trans_M = np.float32([[1,0,tr_x],[0,1,tr_y]])
+
+    # Shear
+    pts1 = np.float32([[5,5],[20,5],[5,20]])
+
+    pt1 = 5+shear_range*np.random.uniform()-shear_range/2
+    pt2 = 20+shear_range*np.random.uniform()-shear_range/2
+
+    # Brightness
+
+
+    pts2 = np.float32([[pt1,5],[pt2,pt1],[5,pt2]])
+
+    shear_M = cv2.getAffineTransform(pts1,pts2)
+
+    img = cv2.warpAffine(img,Rot_M,(cols,rows))
+    img = cv2.warpAffine(img,Trans_M,(cols,rows))
+    img = cv2.warpAffine(img,shear_M,(cols,rows))
+
+    if brightness == 1:
+      img = augment_brightness_camera_images(img)
+
+    return img
+
+
+
+
+
+def GenerateBatch(BasePath, DirNamesTrain, TrainLabels, ImageSize, MiniBatchSize,num_augment):
+    """
+    Inputs:
+    BasePath - Path to CIFAR10 folder without "/" at the end
+    DirNamesTrain - Variable with Subfolder paths to train files
+    NOTE that Train can be replaced by Val/Test for generating batch corresponding to validation (held-out testing in this case)/testing
+    TrainLabels - Labels corresponding to Train
+    NOTE that TrainLabels can be replaced by Val/TestLabels for generating batch corresponding to validation (held-out testing in this case)/testing
+    ImageSize - Size of the Image
+    MiniBatchSize is the size of the MiniBatch
+    num_augment - number of images after augmentation(excluding the image itself).
+    Outputs:
+    I1Batch - Batch of images
+    LabelBatch - Batch of one-hot encoded labels
+    """
+    I1Batch = []
+    LabelBatch = []
+
+    ImageNum = 0
+    while ImageNum < MiniBatchSize:
+        # Generate random image
+        RandIdx = random.randint(0, len(DirNamesTrain)-1)
+
+        RandImageName = BasePath + os.sep + DirNamesTrain[RandIdx] + '.png'
+        I1 = np.float32(cv2.imread(RandImageName))
+        ##########################################################################
+        # Add any standardization or cropping/resizing if used in Training here!
+        ##########################################################################
+        # Standerdize the image
+        I1S=(I1-np.mean(I1))/255
+        Label = convertToOneHot(TrainLabels[RandIdx], 10)
+
+        # Append All Images and Mask
+        I1Batch.append(I1S)
+        # I1Batch.append(I1)
+        LabelBatch.append(Label)
+        #increment the image counter
+        ImageNum += 1
+        # print('image stack lenght = ',len(I1Batch))
+        # print('Label stack lenght = ',len(LabelBatch))
+
+        # Augment the same image "num_augment" times
+        for i in range(num_augment):
+            # print('image_num counter = ', ImageNum)
+            if(ImageNum >= MiniBatchSize):
+                break
+            # tranform the Original image
+            img = transform_image(I1,15,10,5,brightness=1)
+            # Standardize the image
+            img_std=(img-np.mean(img))/255
+            # Append the image in the image list
+            I1Batch.append(img_std)
+            # Append the same label in the label list
+            LabelBatch.append(Label)
+            # print('image stack lenght = ',len(I1Batch))
+            # print('Label stack lenght = ',len(LabelBatch))
+            #increment the image counter
+            ImageNum += 1
+
+
+    return I1Batch, LabelBatch
+
+#######################################################################################################################
+def PrettyPrint(NumEpochs, DivTrain, MiniBatchSize, NumTrainSamples, LatestFile):
+    """
+    Prints all stats with all arguments
+    """
+    print('Number of Epochs Training will run for ' + str(NumEpochs))
+    print('Factor of reduction in training data is ' + str(DivTrain))
+    print('Mini Batch Size ' + str(MiniBatchSize))
+    print('Number of Training Images ' + str(NumTrainSamples))
+    if LatestFile is not None:
+        print('Loading latest checkpoint with the name ' + LatestFile)
+
+
+
+def TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, ImageSize,
+                   NumEpochs, MiniBatchSize, SaveCheckPoint, CheckPointPath,
+                   DivTrain, LatestFile, BasePath, LogsPath):
+    """
+    Inputs:
+    ImgPH is the Input Image placeholder
+    LabelPH is the one-hot encoded label placeholder
+    DirNamesTrain - Variable with Subfolder paths to train files
+    TrainLabels - Labels corresponding to Train/Test
+    NumTrainSamples - length(Train)
+    ImageSize - Size of the image
+    NumEpochs - Number of passes through the Train data
+    MiniBatchSize is the size of the MiniBatch
+    SaveCheckPoint - Save checkpoint every SaveCheckPoint iteration in every epoch, checkpoint saved automatically after every epoch
+    CheckPointPath - Path to save checkpoints/model
+    DivTrain - Divide the data by this number for Epoch calculation, use if you have a lot of dataor for debugging code
+    LatestFile - Latest checkpointfile to continue training
+    BasePath - Path to CIFAR10 folder without "/" at the end
+    LogsPath - Path to save Tensorboard Logs
+    Outputs:
+    Saves Trained network in CheckPointPath and Logs to LogsPath
+    """
+    # Predict output with forward pass
+    prLogits, prSoftMax = CIFAR10Model(ImgPH, ImageSize, MiniBatchSize)
+
+    with tf.name_scope('Loss'):
+
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=LabelPH,logits=prLogits)
+        loss=tf.reduce_mean(cross_entropy)
+
+
+    with tf.name_scope('Accuracy'):
+        prSoftMaxDecoded = tf.argmax(prSoftMax, axis=1)
+        LabelDecoded = tf.argmax(LabelPH, axis=1)
+        Acc = tf.reduce_mean(tf.cast(tf.math.equal(prSoftMaxDecoded, LabelDecoded), dtype=tf.float32))
+
+    with tf.name_scope('Adam'):
+
+        Optimizer=tf.train.AdamOptimizer(learning_rate=1e-3).minimize(loss)
+
+    # Tensorboard
+    # Create a summary to monitor loss tensor
+    tf.summary.scalar('LossEveryIter', loss)
+    tf.summary.scalar('Accuracy', Acc)
+    # Merge all summaries into a single operation
+    MergedSummaryOP = tf.summary.merge_all()
+
+    # Setup Saver
+    Saver = tf.train.Saver()
+    LossOverEpochs=np.array([0,0])
+    AccOverEpochs=np.array([0,0])
+    with tf.Session() as sess:
+        if LatestFile is not None:
+            Saver.restore(sess, CheckPointPath + LatestFile + '.ckpt')
+            # Extract only numbers from the name
+            StartEpoch = int(''.join(c for c in LatestFile.split('a')[0] if c.isdigit()))
+            print('Loaded latest checkpoint with the name ' + LatestFile + '....')
+        else:
+            sess.run(tf.global_variables_initializer())
+            StartEpoch = 0
+            print('New model initialized....')
+
+        # Tensorboard
+        Writer = tf.summary.FileWriter(LogsPath, graph=tf.get_default_graph())
+
+        for Epochs in tqdm(range(StartEpoch, NumEpochs)):
+            NumIterationsPerEpoch = int(NumTrainSamples/MiniBatchSize/DivTrain)
+            appendAcc=[]
+            appendLoss=[]
+            for PerEpochCounter in tqdm(range(NumIterationsPerEpoch)):
+                I1Batch, LabelBatch = GenerateBatch(BasePath, DirNamesTrain, TrainLabels, ImageSize, MiniBatchSize)
+                FeedDict = {ImgPH: I1Batch, LabelPH: LabelBatch}
+                _, LossThisBatch, Summary = sess.run([Optimizer, loss, MergedSummaryOP], feed_dict=FeedDict)
+                # Save checkpoint every some SaveCheckPoint's iterations
+                #print(LossThisBatch)
+                if PerEpochCounter % SaveCheckPoint == 0:
+                    # Save the Model learnt in this epoch
+                    SaveName =  CheckPointPath + str(Epochs) + 'a' + str(PerEpochCounter) + 'model.ckpt'
+                    Saver.save(sess,  save_path=SaveName)
+                    print('\n' + SaveName + ' Model Saved...')
+
+                acc = sess.run(Acc, feed_dict=FeedDict)
+                msg = "Optimization Iteration: {0:>6}, Training Accuracy: {1:>6.1%}"
+                appendAcc.append(acc)
+                appendLoss.append(LossThisBatch)
+                Writer.add_summary(Summary, Epochs*NumIterationsPerEpoch + PerEpochCounter)
+                # If you don't flush the tensorboard doesn't update until a lot of iterations!
+                Writer.flush()
+            SaveName = CheckPointPath + str(Epochs) + 'model.ckpt'
+            Saver.save(sess, save_path=SaveName)
+            print('\n' + SaveName + ' Model Saved...')
+            # Calculate the accuracy on the training-set.
+            print("Epoch accuracy is:", np.mean(appendAcc)*100,"%.")
+            LossOverEpochs=np.vstack((LossOverEpochs,[Epochs,np.mean(appendLoss)]))
+            AccOverEpochs=np.vstack((AccOverEpochs,[Epochs,np.mean(appendAcc)*100]))
+            plt.subplot(2,1,1)
+            plt.xlim(0,60)
+            plt.ylim(0,100)
+            plt.xlabel('Epoch')
+            plt.ylabel('Accuracy')
+            plt.subplots_adjust(hspace=0.6,wspace=0.3)
+            plt.plot(AccOverEpochs[:,0],AccOverEpochs[:,1])
+            plt.subplot(2,1,2)
+            plt.xlim(0,60)
+            plt.xlabel('Epoch')
+            plt.ylabel('Loss')
+            plt.plot(LossOverEpochs[:,0],LossOverEpochs[:,1])
+            plt.savefig('Graphs/lossEpochs'+str(Epochs)+'.png')
+            plt.close()
+
+
+def ConfusionMatrix(LabelsTrue, LabelsPred, num_classes):
+    """
+    LabelsTrue - True labels
+    LabelsPred - Predicted labels
+    """
+    print('length = '+ str(len(LabelsPred)))
+    # Get the confusion matrix using sklearn.
+    cm = confusion_matrix(y_true=LabelsTrue,  # True class for test-set.
+                          y_pred=LabelsPred)  # Predicted class.
+
+    # Print the confusion matrix as text.
+    for i in range(10):
+        print(str(cm[i, :]) + ' ({0})'.format(i))
+
+    # Print the class-numbers for easy reference.
+    class_numbers = [" ({0})".format(i) for i in range(10)]
+    print("".join(class_numbers))
+
+    print('Accuracy: ' + str(Accuracy(LabelsPred, LabelsTrue)), '%')
+
+    plt.matshow(cm)
+
+    # Make various adjustments to the plot.
+    plt.colorbar()
+    tick_marks = np.arange(num_classes)
+    plt.xticks(tick_marks, range(num_classes))
+    plt.yticks(tick_marks, range(num_classes))
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.show()
+
+
+
+
+
+
+def main():
+    """
+    Inputs:
+    None
+    Outputs:
+    Runs the Training and testing code based on the Flag
+    """
+    # Parse Command Line arguments
+    Parser = argparse.ArgumentParser()
+    Parser.add_argument('--BasePath', default='/media/nitin/Research/Homing/SpectralCompression/CIFAR10', help='Base path of images, Default:/media/nitin/Research/Homing/SpectralCompression/CIFAR10')
+    Parser.add_argument('--CheckPointPath', default='../Checkpoints/', help='Path to save Checkpoints, Default: ../Checkpoints/')
+    Parser.add_argument('--NumEpochs', type=int, default=50, help='Number of Epochs to Train for, Default:50')
+    Parser.add_argument('--DivTrain', type=int, default=1, help='Factor to reduce Train data by per epoch, Default:1')
+    Parser.add_argument('--MiniBatchSize', type=int, default=1, help='Size of the MiniBatch to use, Default:1')
+    Parser.add_argument('--LoadCheckPoint', type=int, default=0, help='Load Model from latest Checkpoint from CheckPointsPath?, Default:0')
+    Parser.add_argument('--LogsPath', default='Logs/', help='Path to save Logs for Tensorboard, Default=Logs/')
+
+    Args = Parser.parse_args()
+    NumEpochs = Args.NumEpochs
+    BasePath = Args.BasePath
+    DivTrain = float(Args.DivTrain)
+    MiniBatchSize = Args.MiniBatchSize
+    LoadCheckPoint = Args.LoadCheckPoint
+    CheckPointPath = Args.CheckPointPath
+    LogsPath = Args.LogsPath
+
+    # Setup all needed parameters including file reading
+    DirNamesTrain, SaveCheckPoint, ImageSize, NumTrainSamples, TrainLabels, NumClasses = SetupAll(BasePath, CheckPointPath)
+
+
+
+    # Find Latest Checkpoint File
+    if LoadCheckPoint==1:
+        LatestFile = FindLatestModel(CheckPointPath)
+    else:
+        LatestFile = None
+
+    # Pretty print stats
+    PrettyPrint(NumEpochs, DivTrain, MiniBatchSize, NumTrainSamples, LatestFile)
+
+    # Define PlaceHolder variables for Input and Predicted output
+    ImgPH = tf.placeholder(tf.float32, shape=(MiniBatchSize, ImageSize[0], ImageSize[1], ImageSize[2]),name='input')
+    LabelPH = tf.placeholder(tf.float32, shape=(MiniBatchSize, NumClasses)) # OneHOT labels
+
+    TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, ImageSize,
+                   NumEpochs, MiniBatchSize, SaveCheckPoint, CheckPointPath,
+                   DivTrain, LatestFile, BasePath, LogsPath)
+
+
+   ConfusionMatrix(TrainLabels, LabelsPred, num_classes)
+
+if __name__ == '__main__':
+    main()

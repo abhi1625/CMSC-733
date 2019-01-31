@@ -105,7 +105,7 @@ def TestOperation(ImgPH, ImageSize, ModelPath, DataPath, LabelsPathPred):
     """
     Inputs:
     ImgPH is the Input Image placeholder
-    ImageSize is the size of the image
+    ImageSize is the size of the imge
     ModelPath - Path to load trained model from
     DataPath - Paths of all images where testing will be run on
     LabelsPathPred - Path to save predictions
