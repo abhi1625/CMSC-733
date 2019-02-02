@@ -20,5 +20,5 @@ to
 ```
 from Network.ResNext import CIFAR10Model
 ```
-inorder to run the ResNext Model. Change this lines for all the models you want to run: Network1, ResNet, ResNext, DenseNet
-Do the same for `Test.py` file.
+inorder to run the ResNext Model. Change this lines for all the models you want to run: 
+Network1, ResNet, ResNext, DenseNet. Do the same for `Test.py` file.
