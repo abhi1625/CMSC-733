@@ -227,8 +227,8 @@ def Texton(img,filter_bank1,filter_bank2,filter_bank3, num_clusters):
     return l
 
 def brightness(Img, num_clusters):
-    p,q = Img.shape
-    inp = np.reshape(Img,((p*q),1))
+    p,q,r = Img.shape
+    inp = np.reshape(Img,((p*q),r))
     kmeans = sklearn.cluster.KMeans(n_clusters = num_clusters, random_state = 2)
     kmeans.fit(inp)
     labels = kmeans.predict(inp)
@@ -306,10 +306,11 @@ def chi_sqr_gradient(Img, bins,filter1,filter2):
     return chi_sqr_dist/2
 def plot_LM(filters):
     _,_,r = filters.shape
+    plt.subplots(4,12,figsize=(20,20))
     for i in range(r):
         plt.subplot(4,12,i+1)
         plt.axis('off')
-        plt.imshow(filters[:,:,i], cmap = 'binary')
+        plt.imshow(filters[:,:,i],cmap='binary')
     plt.savefig('LM.png')
     plt.close()
         # x = filters[:,:,i]
@@ -318,20 +319,31 @@ def plot_LM(filters):
     # return cv2.hconcat(fig)
 def plot_Gab(filters):
     r = len(filters)
+    plt.subplots(r/5,5,figsize=(20,20))
     for i in range(r):
         plt.subplot(r/5,5,i+1)
         plt.axis('off')
-        plt.imshow(filters[i], cmap = 'gray')
+        plt.imshow(filters[i],cmap='gray')
     plt.savefig('Gabor.png')
     plt.close()
 
 def plot_DoG(filters):
     r = len(filters)
+    plt.subplots(r/5,5,figsize=(20,20))
     for i in range(r):
         plt.subplot(r/5,5,i+1)
         plt.axis('off')
         plt.imshow(filters[i],cmap='gray')
     plt.savefig('DoG.png')
+    plt.close()
+def plot_halfdisks(filters):
+    r = len(filters)
+    plt.subplots(r/5,5,figsize=(20,20))
+    for i in range(r):
+        plt.subplot(r/4,4,i+1)
+        plt.axis('off')
+        plt.imshow(filters[i],cmap='binary')
+    plt.savefig('Half-Disks.png')
     plt.close()
 
 def main():
@@ -344,9 +356,9 @@ def main():
     for i in range(10):
         path = '/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/Images/'+str(i+1)+'.jpg'
         print(path)
-        img = cv2.imread(path,0)  #0 for reading img in grayscale
-        img_col = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/Images/'+str(i+1)+'.jpg')
-
+        img = plt.imread(path)  #0 for reading img in grayscale
+        img_col = plt.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/Images/'+str(i+1)+'.jpg')
+        # img = cv2.cvtColor(img,)
 
         """
         Generate Leung-Malik Filter Bank: (LM)
@@ -361,7 +373,7 @@ def main():
         Display all the filters in this filter bank and save image as DoG.png,
         use command "cv2.imwrite(...)"
         """
-        filter_bank2 = makeDOGFilters(scales = [16,25,30],orient = 15, size = 49 )
+        filter_bank2 = makeDOGFilters(scales = [9,16,25],orient = 15, size = 49 )
         plot_DoG(filter_bank2)
         # cv2.imwrite('DoG.png',flt2)
 
@@ -390,7 +402,7 @@ def main():
             """
             B = brightness(Img = img, num_clusters=16)
             np.save('Maps/B'+str(i+1),B)
-            plt.imsave(str(i+1)+"/BrightnessMap_"+str(i+1)+".png", B)
+            plt.imsave(str(i+1)+"/BrightnessMap_"+str(i+1)+".png", B,cmap='binary')
 
             """
             Generate Color Map
@@ -410,8 +422,8 @@ def main():
         Display all the Half-disk masks and save image as HDMasks.png,
         use command "cv2.imwrite(...)"
         """
-        c = disk_masks([5,7], 8)
-
+        c = disk_masks([5,7,16], 8)
+        plot_halfdisks(c)
         """
         Generate Texton Gradient (Tg)
         Perform Chi-square calculation on Texton Map
@@ -430,7 +442,7 @@ def main():
         use command "cv2.imwrite(...)"
         """
         Bg = gradient(B, 16, c)
-        plt.imsave(str(i+1)+"/Bg_"+str(i+1)+".png", Bg)
+        plt.imsave(str(i+1)+"/Bg_"+str(i+1)+".png", Bg,cmap='binary')
 
         """
         Generate Color Gradient (Cg)
@@ -443,29 +455,29 @@ def main():
 
 
         temp = (Tg+Bg+Cg)/3
-        cv2.imshow('temp',temp)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('temp',temp)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         """
         Read Sobel Baseline
         use command "cv2.imread(...)"
         """
-        sobelBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/SobelBaseline/'+str(i+1)+'.png',0)
+        sobelBaseline = plt.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/SobelBaseline/'+str(i+1)+'s.png',0)
 
         """
         Read Canny Baseline
         use command "cv2.imread(...)"
         """
-        cannyBaseline = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/CannyBaseline/'+str(i+1)+'.png',0)
+        cannyBaseline = plt.imread('/home/abhinav/CMSC-733/Abhi1625_hw0/Phase1/BSDS500/CannyBaseline/'+str(i+1)+'.png',0)
 
         """
         Combine responses to get pb-lite output
         Display PbLite and save image as PbLite_ImageName.png
         use command "cv2.imwrite(...)"
         """
-        pblite_out = np.multiply(temp, (0.45*cannyBaseline+0.55*sobelBaseline))
+        pblite_out = np.multiply(temp, (0.1*cannyBaseline+0.9*sobelBaseline))
 
-        cv2.imwrite(str(i+1)+"/PbLite_" + str(i+1) + ".png", pblite_out)
+        cv2.imwrite(str(i+1)+"/PbLite_" + str(i+1) + "canny=0.1.png", pblite_out)
 
 
     # plt.imshow(pblite_out,cmap='binary')

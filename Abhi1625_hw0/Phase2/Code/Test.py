@@ -1,3 +1,11 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jan 29 21:16:41 2019
+
+@author: kartikmadhira
+"""
+
 #!/usr/bin/env python
 
 """
@@ -5,12 +13,8 @@ CMSC733 Spring 2019: Classical and Deep Learning Approaches for
 Geometric Computer Vision
 Homework 0: Alohomora: Phase 2 Starter Code
 
+
 Author(s):
-
-Abhinav Modi (abhi1625@umd.edu)
-Graduate Student pursuing Masters in Robotics,
-University of Maryland, College Park
-
 Nitin J. Sanket (nitinsan@terpmail.umd.edu)
 PhD Candidate in Computer Science,
 University of Maryland, College Park
@@ -20,18 +24,18 @@ University of Maryland, College Park
 # Dependencies:
 # opencv, do (pip install opencv-python)
 # skimage, do (apt install python-skimage)
-
+import time
 import tensorflow as tf
 import cv2
 import os
 import sys
 import glob
-import Misc.ImageUtils as iu
 import random
 from skimage import data, exposure, img_as_float
 import matplotlib.pyplot as plt
 from Network.DenseNet import CIFAR10Model
 from Misc.MiscUtils import *
+from PIL import Image
 import numpy as np
 import time
 import argparse
@@ -41,6 +45,13 @@ import string
 import math as m
 from sklearn.metrics import confusion_matrix
 from tqdm import tqdm
+import random
+from scipy import ndarray
+import skimage as sk
+from skimage import transform
+from skimage import util
+
+
 
 
 # Don't generate pyc codes
@@ -83,13 +94,9 @@ def ReadImages(ImageSize, DataPath):
         print('ERROR: Image I1 cannot be read')
         sys.exit()
 
-    ##########################################################################
-    # Add any standardization or cropping/resizing if used in Training here!
-    ##########################################################################
 
-    #I1S = iu.StandardizeInputs(np.float32(I1))
-    I1S = (I1 - np.mean(I1))/255
-    I1Combined = np.expand_dims(I1S, axis=0)
+    I1 = (I1-np.mean(I1))/255
+    I1Combined = np.expand_dims(I1, axis=0)
 
     return I1Combined, I1
 
@@ -98,7 +105,7 @@ def TestOperation(ImgPH, ImageSize, ModelPath, DataPath, LabelsPathPred):
     """
     Inputs:
     ImgPH is the Input Image placeholder
-    ImageSize is the size of the image
+    ImageSize is the size of the imge
     ModelPath - Path to load trained model from
     DataPath - Paths of all images where testing will be run on
     LabelsPathPred - Path to save predictions
@@ -158,12 +165,31 @@ def ReadLabels(LabelsPathTest, LabelsPathPred):
 
     return LabelTest, LabelPred
 
-def ConfusionMatrix(LabelsTrue, LabelsPred):
+# def ConfusionMatrix(LabelsTrue, LabelPred):
+#     """
+#     LabelsTrue - True labels
+#     LabelsPred - Predicted labels
+#     """
+#
+#     # Get the confusion matrix using sklearn.
+#     cm = confusion_matrix(y_true=LabelsTrue,  # True class for test-set.
+#                           y_pred=LabelPred)  # Predicted class.
+#
+#     # Print the confusion matrix as text.
+#     for i in range(10):
+#         print(str(cm[i, :]) + ' ({0})'.format(i))
+#
+#     # Print the class-numbers for easy reference.
+#     class_numbers = [" ({0})".format(i) for i in range(10)]
+#     print("".join(class_numbers))
+#
+#     print('Accuracy: '+ str(Accuracy(LabelPred, LabelsTrue)), '%')
+def ConfusionMatrix(LabelsTrue, LabelsPred, num_classes):
     """
     LabelsTrue - True labels
     LabelsPred - Predicted labels
     """
-
+    print('length = '+ str(len(LabelsPred)))
     # Get the confusion matrix using sklearn.
     cm = confusion_matrix(y_true=LabelsTrue,  # True class for test-set.
                           y_pred=LabelsPred)  # Predicted class.
@@ -176,8 +202,18 @@ def ConfusionMatrix(LabelsTrue, LabelsPred):
     class_numbers = [" ({0})".format(i) for i in range(10)]
     print("".join(class_numbers))
 
-    print('Accuracy: '+ str(Accuracy(LabelsPred, LabelsTrue)), '%')
+    print('Accuracy: ' + str(Accuracy(LabelsPred, LabelsTrue)), '%')
 
+    plt.matshow(cm)
+
+    # Make various adjustments to the plot.
+    plt.colorbar()
+    tick_marks = np.arange(num_classes)
+    plt.xticks(tick_marks, range(num_classes))
+    plt.yticks(tick_marks, range(num_classes))
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.show()
 
 def main():
     """
@@ -186,29 +222,50 @@ def main():
     Outputs:
     Prints out the confusion matrix with accuracy
     """
+    accTestOverEpochs=np.array([0,0])
 
-    # Parse Command Line arguments
     Parser = argparse.ArgumentParser()
-    Parser.add_argument('--ModelPath', dest='ModelPath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/Checkpoints/29model.ckpt', help='Path to load latest model from, Default:ModelPath')
+    Parser.add_argument('--NumEpochs', dest='NumEpochs',type=int, default=5, help='Path to load images from, Default:BasePath')
+    Parser.add_argument('--ModelPath', dest='ModelPath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/Checkpoints/', help='Path to load latest model from, Default:ModelPath')
     Parser.add_argument('--BasePath', dest='BasePath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/CIFAR10/Test/', help='Path to load images from, Default:BasePath')
     Parser.add_argument('--LabelsPath', dest='LabelsPath', default='./TxtFiles/LabelsTest.txt', help='Path of labels file, Default:./TxtFiles/LabelsTest.txt')
     Args = Parser.parse_args()
-    ModelPath = Args.ModelPath
-    BasePath = Args.BasePath
-    LabelsPath = Args.LabelsPath
+    NumEpochs = Args.NumEpochs
+    start = time.time()
+    for epoch in range(NumEpochs):
+        # Parse Command Line arguments
+        tf.reset_default_graph()
 
-    # Setup all needed parameters including file reading
-    ImageSize, DataPath = SetupAll(BasePath)
+        ModelPath = '/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/Checkpoints/'+str(epoch)+'model.ckpt'
+        print(ModelPath)
+        BasePath = Args.BasePath
+        LabelsPath = Args.LabelsPath
 
-    # Define PlaceHolder variables for Input and Predicted output
-    ImgPH = tf.placeholder(tf.float32, shape=(1, ImageSize[0], ImageSize[1], 3))
-    LabelsPathPred = './TxtFiles/PredOut.txt' # Path to save predicted labels
+        # Setup all needed parameters including file reading
+        ImageSize, DataPath = SetupAll(BasePath)
 
-    TestOperation(ImgPH, ImageSize, ModelPath, DataPath, LabelsPathPred)
+        # Define PlaceHolder variables for Input and Predicted output
+        ImgPH = tf.placeholder('float', shape=(1, ImageSize[0], ImageSize[1], 3))
+        LabelsPathPred = './TxtFiles/PredOut.txt' # Path to save predicted labels
 
-    # Plot Confusion Matrix
-    LabelsTrue, LabelsPred = ReadLabels(LabelsPath, LabelsPathPred)
-    ConfusionMatrix(LabelsTrue, LabelsPred)
+        TestOperation(ImgPH, ImageSize, ModelPath, DataPath, LabelsPathPred)
+
+        # Plot Confusion Matrix
+        LabelsTrue, LabelsPred = ReadLabels(LabelsPath, LabelsPathPred)
+        accuracy=Accuracy(LabelsTrue, LabelsPred)
+        accTestOverEpochs=np.vstack((accTestOverEpochs,[epoch,accuracy]))
+        plt.xlim(0,60)
+        plt.ylim(0,100)
+        plt.xlabel('Epoch')
+        plt.ylabel('Test accuracy')
+        plt.subplots_adjust(hspace=0.6,wspace=0.3)
+        plt.plot(accTestOverEpochs[:,0],accTestOverEpochs[:,1])
+        plt.savefig('Graphs/test/Epochs'+str(epoch)+'.png')
+        plt.close()
+    end = time.time()
+    infer_time = (end-start)/10000
+    print('inference time:',infer_time)
+    ConfusionMatrix(LabelsTrue, LabelsPred,10)
 
 if __name__ == '__main__':
     main()

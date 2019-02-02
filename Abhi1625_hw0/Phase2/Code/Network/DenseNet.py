@@ -72,7 +72,7 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     net = tf.layers.conv2d(net,num_filters1,kernel_size = filter_size1,activation = None)
 
     #Construct first convolution block of n residual blocks
-    net  = denseBlock(Img = net, num_layers = 1, len_dense = 5,num_filters = num_filters1,kernel_size =filter_size1 ,downsampling = False)
+    net  = denseBlock(Img = net, num_layers = 1, len_dense = 4,num_filters = num_filters1,kernel_size =filter_size1 ,downsampling = False)
     # net = n_res_block(net, num_filters = num_filters4, kernel_size = filter_size4, n_blocks = n4, b=4, downsampling =True)
 
     #Define flatten_layer
@@ -81,7 +81,7 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     #Define the Neural Network's fully connected layers:
     net = tf.layers.dense(inputs = net, name ='layer_fc1', units = 128, activation = tf.nn.relu)
 
-    # net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
+    net = tf.layers.dense(inputs = net, name ='layer_fc2',units=256, activation=tf.nn.relu)
 
     # net = tf.layers.dense(inputs = net, name ='layer_fc3',units=64, activation=tf.nn.relu)
 

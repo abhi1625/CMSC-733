@@ -31,7 +31,7 @@ import glob
 import random
 from skimage import data, exposure, img_as_float
 import matplotlib.pyplot as plt
-from Network.ResNet import CIFAR10Model
+from Network.DenseNet import CIFAR10Model
 from Misc.MiscUtils import *
 from Misc.DataUtils import *
 import numpy as np
@@ -48,6 +48,7 @@ from scipy import ndarray
 import skimage as sk
 from skimage import transform
 from skimage import util
+from sklearn.metrics import confusion_matrix
 
 # Don't generate pyc codes
 sys.dont_write_bytecode = True
@@ -270,7 +271,6 @@ def TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, 
 
         # Tensorboard
         Writer = tf.summary.FileWriter(LogsPath, graph=tf.get_default_graph())
-
         for Epochs in tqdm(range(StartEpoch, NumEpochs)):
             NumIterationsPerEpoch = int(NumTrainSamples/MiniBatchSize/DivTrain)
             appendAcc=[]
@@ -284,9 +284,8 @@ def TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, 
                 if PerEpochCounter % SaveCheckPoint == 0:
                     # Save the Model learnt in this epoch
                     SaveName =  CheckPointPath + str(Epochs) + 'a' + str(PerEpochCounter) + 'model.ckpt'
-                    Saver.save(sess,  save_path=SaveName)
+                    #Saver.save(sess,  save_path=SaveName)
                     print('\n' + SaveName + ' Model Saved...')
-
                 acc = sess.run(Acc, feed_dict=FeedDict)
                 msg = "Optimization Iteration: {0:>6}, Training Accuracy: {1:>6.1%}"
                 appendAcc.append(acc)
@@ -313,12 +312,11 @@ def TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, 
             plt.xlabel('Epoch')
             plt.ylabel('Loss')
             plt.plot(LossOverEpochs[:,0],LossOverEpochs[:,1])
-            plt.savefig('Graphs/train/ResNet/lossEpochs'+str(Epochs)+'.png')
+            plt.savefig('Graphs/train/lossEpochs'+str(Epochs)+'.png')
             plt.close()
-
+        # ConfusionMatrix(LabelsTrue,LabelsPred,10)
 
 #Confusion Matrix
-
 
 def main():
     """
@@ -331,7 +329,7 @@ def main():
     Parser = argparse.ArgumentParser()
     Parser.add_argument('--BasePath', default='/home/abhinav/CMSC-733/Abhi1625_hw0/Phase2/CIFAR10', help='Base path of images, Default:/media/nitin/Research/Homing/SpectralCompression/CIFAR10')
     Parser.add_argument('--CheckPointPath', default='../Checkpoints/', help='Path to save Checkpoints, Default: ../Checkpoints/')
-    Parser.add_argument('--NumEpochs', type=int, default=10, help='Number of Epochs to Train for, Default:50')
+    Parser.add_argument('--NumEpochs', type=int, default=25, help='Number of Epochs to Train for, Default:50')
     Parser.add_argument('--DivTrain', type=int, default=1, help='Factor to reduce Train data by per epoch, Default:1')
     Parser.add_argument('--MiniBatchSize', type=int, default=32, help='Size of the MiniBatch to use, Default:1')
     Parser.add_argument('--LoadCheckPoint', type=int, default=0, help='Load Model from latest Checkpoint from CheckPointsPath?, Default:0')
@@ -345,7 +343,7 @@ def main():
     LoadCheckPoint = Args.LoadCheckPoint
     CheckPointPath = Args.CheckPointPath
     LogsPath = Args.LogsPath
-    num_augment = 4
+    num_augment = 1
     # Setup all needed parameters including file reading
     DirNamesTrain, SaveCheckPoint, ImageSize, NumTrainSamples, TrainLabels, NumClasses = SetupAll(BasePath, CheckPointPath)
 
@@ -367,7 +365,6 @@ def main():
     TrainOperation(ImgPH, LabelPH, DirNamesTrain, TrainLabels, NumTrainSamples, ImageSize,
                    NumEpochs, MiniBatchSize, SaveCheckPoint, CheckPointPath,
                    DivTrain, LatestFile, BasePath, LogsPath,num_augment)
-
 
 if __name__ == '__main__':
     main()

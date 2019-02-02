@@ -33,10 +33,8 @@ def res_block(Img, num_filters, kernel_size,s,b, downsampling = True):
     b is the integer number of the set of blocks with same parameters
     """
     name = name_block(s=s,b=b)
-    net = tf.layers.conv2d(inputs = Img, name=name+'_conv_0', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
-    net = tf.layers.batch_normalization(inputs = net,axis = -1, center = True, scale = True, name = name+'_bn0')
 
-    im_store = tf.layers.conv2d(inputs = net, name=name+'_conv', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
+    im_store = tf.layers.conv2d(inputs = Img, name=name+'_conv', padding='same',filters = num_filters, kernel_size = kernel_size, activation = None)
     im_store = tf.layers.batch_normalization(inputs = im_store,axis = -1, center = True, scale = True, name = name+'_bn')
     I_store = im_store
 
@@ -88,17 +86,17 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     #Define Filter parameters for the first convolution layer block
     filter_size1 = 5
     num_filters1 = 16
-    n1 = 1                  #number of residual blocks in each convolution layer blocks
+    n1 = 5                  #number of residual blocks in each convolution layer blocks
 
     #Define Filter parameters for the second convolution layer block
     filter_size2 = 5
     num_filters2 = 64
-    n2 = 2                 #number of residual blocks in each convolution layer blocks
+    n2 = 10                 #number of residual blocks in each convolution layer blocks
 
     #Define Filter parameters for the second convolution layer block
     filter_size3 = 4
     num_filters3 = 16
-    n3 = 1                  #number of residual blocks in each convolution layer blocks
+    n3 = 5                  #number of residual blocks in each convolution layer blocks
 
     # filter_size4 = 3
     # num_filters4 = 16
@@ -134,7 +132,7 @@ def CIFAR10Model(Img, ImageSize, MiniBatchSize):
     #
     net = tf.layers.dense(inputs = net, name ='layer_fc2',units=128, activation=tf.nn.relu)
 
-    net = tf.layers.dense(inputs = net, name ='layer_fc3',units=128, activation=tf.nn.relu)
+    net = tf.layers.dense(inputs = net, name ='layer_fc3',units=256, activation=tf.nn.relu)
 
     net = tf.layers.dense(inputs = net, name='layer_fc_out', units = num_classes, activation = None)
 
