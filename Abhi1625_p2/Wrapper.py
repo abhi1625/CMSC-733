@@ -195,8 +195,8 @@ def main():
     mode = str(mode)
     path = str(video)
     img = str(swap_img)
-    cap1 = cv2.VideoCapture('/home/abhinav/CMSC-733/Abhi1625_p2/TestSet_P2/'+path)
-    img_tar = cv2.imread('/home/abhinav/CMSC-733/Abhi1625_p2/TestSet_P2/'+swap_img)
+    cap1 = cv2.VideoCapture('./Data/'+path)
+    img_tar = cv2.imread('./Data/'+swap_img)
     i=0
     while(True):
         ret1,img_src = cap1.read()

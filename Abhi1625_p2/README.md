@@ -23,6 +23,7 @@ This will run the code for Thin Plate Splines to swap the face in `Test1.mp4` wi
 Note: Make sure that all the videos and images ,you want to run the code for, are present in the TestSet2_P2 folder present in the current directory.
 
 ### Face Swap using PR Net:
+Move to the PRNet folder in the current directory and follow the commands below to run the faceswap pipeline using PR Net.
 
 - Download the PRN trained model at BaiduDrive or GoogleDrive, and put it into Data/net-data
 
