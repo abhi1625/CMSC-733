@@ -153,38 +153,42 @@ def GenerateBatch(BasePath, DirNamesTrain, TrainLabels, ImageSize, MiniBatchSize
         RandImageName = BasePath + os.sep + DirNamesTrain[RandIdx] + '.png'
         I1 = np.float32(cv2.imread(RandImageName))
         ##########################################################################
-        # Add any standardization or cropping/resizing if used in Training here!
+        # Add any standardization or cropping/resizing here!
         ##########################################################################
         # Standerdize the image
         I1S=(I1-np.mean(I1))/255
         Label = convertToOneHot(TrainLabels[RandIdx], 10)
 
-        # Append All Images and Mask
+        # Append All Images and Labels
         I1Batch.append(I1S)
-        # I1Batch.append(I1)
+
         LabelBatch.append(Label)
+
         #increment the image counter
         ImageNum += 1
-        # print('image stack lenght = ',len(I1Batch))
-        # print('Label stack lenght = ',len(LabelBatch))
+        # print('image stack length = ',len(I1Batch))
+        # print('Label stack length = ',len(LabelBatch))
 
-        # Augment the same image "num_augment" times
-        for i in range(num_augment):
-            # print('image_num counter = ', ImageNum)
-            if(ImageNum >= MiniBatchSize):
-                break
-            # tranform the Original image
-            img = transform_image(I1,15,10,5,brightness=1)
-            # Standardize the image
-            img_std=(img-np.mean(img))/255
-            # Append the image in the image list
-            I1Batch.append(img_std)
-            # Append the same label in the label list
-            LabelBatch.append(Label)
-            # print('image stack lenght = ',len(I1Batch))
-            # print('Label stack lenght = ',len(LabelBatch))
-            #increment the image counter
-            ImageNum += 1
+        ###########################################################################
+        # Add Number of images after Data augmentation
+        ###########################################################################
+        # # Augment the same image "num_augment" times
+        # for i in range(num_augment):
+        #     # print('image_num counter = ', ImageNum)
+        #     if(ImageNum >= MiniBatchSize):
+        #         break
+        #     # tranform the Original image
+        #     img = transform_image(I1,15,10,5,brightness=1)
+        #     # Standardize the image
+        #     img_std=(img-np.mean(img))/255
+        #     # Append the image in the image list
+        #     I1Batch.append(img_std)
+        #     # Append the same label in the label list
+        #     LabelBatch.append(Label)
+        #     # print('image stack lenght = ',len(I1Batch))
+        #     # print('Label stack lenght = ',len(LabelBatch))
+        #     #increment the image counter
+        #     ImageNum += 1
 
 
     return I1Batch, LabelBatch

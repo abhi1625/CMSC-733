@@ -1,0 +1,3 @@
+1. Replace the face in Test1.mp4 by the face in Rambo.jpg.
+2. Swap faces in Test2.mp4.
+4. Replace the face in Test3.mp4 by the face in Scarlett.jpg.
