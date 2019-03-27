@@ -178,7 +178,7 @@ def main():
     print('faceswap begin...')
     #Define Face Detector and Predictor
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor('./shape_predictor.dat')
+    predictor = dlib.shape_predictor('./shape_predictor_68_face_landmarks.dat')
     # /home/pratique/Downloads/cmsc733-Pictorial Information/project_2_face_swap/YourDirectoryID_p2
     #Setup input video
     # Add any Command Line arguments here
