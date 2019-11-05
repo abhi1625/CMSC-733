@@ -34,7 +34,7 @@ The implementation details and results can be found [here](https://cmsc733.githu
 The aim of this project was to implement an end-to-end pipeline to swap faces in a video just like [Snapchat’s face swap filter](https://www.snapchat.com/) or this [face swap website](http://faceswaplive.com/). It’s a fairly complicated procedure and variants of the approach we've implement have been used in many movies. 
 
 Note that, you need to be aware of ethical issues while replacing faces. Similar methods have been used by people for the creation of fake videos of celibrities called Deep Fakes. Three pipelines were implemented:
-- Using [Delaunay Triangulation](http://mathworld.wolfram.com/DelaunayTriangulation.html#:~:text=The%20Delaunay%20triangulation%20is%20a,1992%2C%20p.%2094).)
+- Using [Delaunay Triangulation](http://mathworld.wolfram.com/DelaunayTriangulation.html#:~:text=The%20Delaunay%20triangulation%20is%20a,1992%2C%20p.%2094)
 - Using [Thin Plate Splines](https://en.wikipedia.org/wiki/Thin_plate_spline)
 - Using a deep learning approach: Joint 3D face reconstruction and dense alignment with position map regression network ([link](https://arxiv.org/abs/1803.07835))
 
