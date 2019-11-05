@@ -24,9 +24,9 @@ Estimating parameters of the camera like the focal length, distortion coefficien
 ## [P1 : My AutoPano](https://github.com/abhi1625/CMSC-733/tree/master/Abhi1625_p1)
 Homography between 2 image frames is defined as the projective transformation between these frames and is one of the very key concepts in Computer Vision. In this project we used Homography to warp multiple images and stitch a panorama using three different techniques - Traditional approach using feature matching and RANSAC, Supervised approach to predict a 4 point parametrization of Homography between two images and an Unsupervised approach to predict Homography without the presence of a ground truth. Some of the output panoramas generated with the traditional approach are shown below:
 <img src="Abhi1625_p1/Draft/mypano.png" align="center" alt="Pano1" height="300"/>
-<img src="Abhi1625_p1/Draft/mypano2.png" align="center" alt="Pano2" height="300"/>
-<img src="Abhi1625_p1/Draft/mypano5.png" align="center" alt="Pano4" height="300"/>
-<img src="Abhi1625_p1/Draft/mypano3.png" align="center" alt="Pano3" height="300"/>
+<img src="Abhi1625_p1/Draft/mypano2.png" align="center" alt="Pano2" height="300" width="900"/> 
+<img src="Abhi1625_p1/Draft/mypano5.png" align="right" alt="Pano4" height="300" width="900"/>
+<img src="Abhi1625_p1/Draft/mypano3.png" align="center" alt="Pano3" height="300" width="900"/>
 
 The implementation details and results can be found [here](https://cmsc733.github.io/assets/2019/p1/results/pdf/kmadhira_p1-compressed.pdf) and the code is available [here](https://github.com/abhi1625/CMSC-733/tree/master/Abhi1625_p1)
 
