@@ -43,5 +43,5 @@ The details of the implementation and results are available [here](https://githu
 The comparison videos for the three pipelines on one of the data sets can be seen here:
  - [![PRNet](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](Abhi1625_p2/Data/Data1OutputPRNet.mp4)
  - [![Thin Plate Splines](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](Abhi1625_p2/Data/Data1OutputTPS.mp4)
- - [![Triangulation](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](Abhi1625_p2/Data/Data1OutputPRNet.mp4)
+ - [![Triangulation](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](Abhi1625_p2/Data/Data1OutputTri.mp4)
  
