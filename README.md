@@ -25,7 +25,7 @@ Estimating parameters of the camera like the focal length, distortion coefficien
 Homography between 2 image frames is defined as the projective transformation between these frames and is one of the very key concepts in Computer Vision. In this project we used Homography to warp multiple images and stitch a panorama using three different techniques - Traditional approach using feature matching and RANSAC, Supervised approach to predict a 4 point parametrization of Homography between two images and an Unsupervised approach to predict Homography without the presence of a ground truth. Some of the output panoramas generated with the traditional approach are shown below:
 <img src="Abhi1625_p1/Draft/mypano.png" align="center" alt="Pano1" height="300"/>
 <img src="Abhi1625_p1/Draft/mypano2.png" align="center" alt="Pano2" height="300" width="900"/> 
-<img src="Abhi1625_p1/Draft/mypano5.png" align="right" alt="Pano4" height="300" width="900"/>
+<!-- img src="Abhi1625_p1/Draft/mypano5.png" align="right" alt="Pano4" height="300" width="900"/ -->
 <img src="Abhi1625_p1/Draft/mypano3.png" align="center" alt="Pano3" height="300" width="900"/>
 
 The implementation details and results can be found [here](https://cmsc733.github.io/assets/2019/p1/results/pdf/kmadhira_p1-compressed.pdf) and the code is available [here](https://github.com/abhi1625/CMSC-733/tree/master/Abhi1625_p1)
@@ -41,7 +41,7 @@ Note that, you need to be aware of ethical issues while replacing faces. Similar
 The details of the implementation and results are available [here](https://github.com/abhi1625/CMSC-733/blob/master/Abhi1625_p2/CMSC733_project2_Faceswap.pdf) and the code is available [here](https://github.com/abhi1625/CMSC-733/tree/master/Abhi1625_p2).
 
 The comparison videos for the three pipelines on one of the data sets can be seen here:
- - [![PRNet](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](Abhi1625_p2/Data/Data1OutputPRNet.mp4)
- - [![Thin Plate Splines](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](Abhi1625_p2/Data/Data1OutputTPS.mp4)
- - [![Triangulation](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](Abhi1625_p2/Data/Data1OutputTri.mp4)
+ - [![Thin Plate Splines](Abhi1625_p2/Data/Capture.PNG)](Abhi1625_p2/Data/Data1OutputTPS.mp4)
+ - [![Triangulation](Abhi1625_p2/Data/Capture.PNG)](Abhi1625_p2/Data/Data1OutputTri.mp4)
+ - [![PRNet](Abhi1625_p2/Data/Capture.PNG)](Abhi1625_p2/Data/Data1OutputPRNet.mp4)
  
