@@ -1,8 +1,4 @@
-# CMSC-733
-Projects for the course CMSC733 - Classical and Deep Learning Approaches for
-Geometric Computer Vision
-
-##Project 2: Face Swap
+## Project 2: Face Swap
 The description and steps used in each section for swapping faces is briefed in the `CMSC733_project2_Faceswap.pdf`. The swapping is tested for 3 different transforming techniques: Delaunay Triangulation, Thin Plate Splines and a deep learning approach using PR Net(Position map regression Network).
 ### Face Swap using Delaunay Triangulation:
 - From the terminal cd into the folder `Abhi1625_p2/Code/`
